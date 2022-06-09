@@ -1,3 +1,5 @@
-## 0.0.1
+## 0.0.2
 
-* TODO: Describe initial release.
+- Update calculate jitter and response time
+- Migrate to flutter 3
+

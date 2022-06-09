@@ -24,14 +24,6 @@ class FlutterSpeedtest {
 
   late Tuple3<ErrorCallback, ProgressCallback, DoneCallback> _callbacks;
 
-  // static final FlutterSpeedtest _instance = FlutterSpeedtest._();
-
-  // factory FlutterSpeedtest() {
-  //   return _instance;
-  // }
-
-  // FlutterSpeedtest._();
-
   Future<void> downloadProgress({
     required String url,
     // Function(double)? onProgress,
@@ -39,59 +31,48 @@ class FlutterSpeedtest {
     required ErrorCallback onError,
   }) async {
     try {
-      print(url);
       final sendDate = DateTime.now().millisecondsSinceEpoch;
-      // if (onProgress != null) onProgress(3);
-      await _dio.get(
-        url,
-        onReceiveProgress: (int received, int total) {
-          print(total);
-          // showDownloadProgress(received, total, sendDate);
-          if (total != -1) {
-            // if (onProgress != null) onProgress(5);
-            int t = DateTime.now().millisecondsSinceEpoch - sendDate;
 
-            int totDownloaded = 0;
+      await _dio
+          .get(
+            url,
+            onReceiveProgress: (int received, int total) {
+              if (total != -1) {
+                // if (onProgress != null) onProgress(5);
+                int t = DateTime.now().millisecondsSinceEpoch - sendDate;
 
-            totDownloaded += received;
+                int totDownloaded = 0;
 
-            double bonusT = 0;
+                totDownloaded += received;
 
-            double speed = totDownloaded / ((t < 100 ? 100 : t) / 1000.0);
+                double bonusT = 0;
 
-            double b = (2.5 * speed) / 100000.0;
-            bonusT += b > 200 ? 200 : b;
+                double speed = totDownloaded / ((t < 100 ? 100 : t) / 1000.0);
 
-            // double progress = (t + bonusT) / 15 * 1000;
+                double b = (2.5 * speed) / 100000.0;
+                bonusT += b > 200 ? 200 : b;
 
-            speed = (speed * 8 * 1.06) / 1000000.0;
-            print(speed);
+                speed = (speed * 8 * 1.06) / 1048576.0;
 
-            // _callbacks = Tuple3(onError, onProgress);
-
-            onProgress(
-              (received / total * 100),
-              speed,
-            );
-
-            // if (onProgress != null) onProgress(speed);
-            // debugPrint(speed);
-          }
-        },
-        //Received data with List<int>
-        options: Options(
-          responseType: ResponseType.bytes,
-          followRedirects: false,
-          validateStatus: (status) {
-            return status! < 500;
-          },
-        ),
-      ).catchError((onError) {
-        print(onError.toString());
-      }).whenComplete(() => print('complet'));
+                onProgress(
+                  (received / total * 100),
+                  speed,
+                );
+              }
+            },
+            //Received data with List<int>
+            options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              validateStatus: (status) {
+                return status! < 500;
+              },
+            ),
+          )
+          .catchError((onError) {})
+          .whenComplete(() {});
       // debugPrint(response.statusMessage);
     } on DioError catch (e) {
-      print('dfsdfsfd');
       onError(e.error.toString());
     }
   }
@@ -109,10 +90,9 @@ class FlutterSpeedtest {
       await _dio.post(
         url,
         data: {
-          'randomDataString': getRandomString(1500000),
+          'randomDataString': getRandomString(15000000),
         },
         onSendProgress: (int received, int total) {
-          // showUploadProgress(received, total, sendDate);
           if (total != -1) {
             int t = DateTime.now().millisecondsSinceEpoch -
                 sendDate.millisecondsSinceEpoch;
@@ -147,7 +127,6 @@ class FlutterSpeedtest {
       // print(response.headers);
     } on DioError catch (e) {
       onError(e.error.toString());
-      print(e);
     }
   }
 
@@ -158,16 +137,13 @@ class FlutterSpeedtest {
     List<int> pingResult = [];
     for (var i = 0; i < 10; i++) {
       var ping = await testResponse(url);
-      // print(ping);
+
       pingResult.add(ping);
     }
-    print('=====');
-    print(pingResult);
-    int sum = pingResult.fold(0, (p, c) => p + c);
-    print('jumlah nya : $sum');
-    // setState(() {
-    var responseTime = sum ~/ 10;
-    // });
+
+    // int sum = pingResult.fold(0, (p, c) => p + c);
+
+    var responseTime = pingResult.reduce(min);
 
     /// calculate jitter
     ///
@@ -179,30 +155,21 @@ class FlutterSpeedtest {
   int _calculateJitter(List<int> pingResult) {
     final jitter = <int>[];
     for (var i = 0; i < pingResult.length; i++) {
-      if (i < pingResult.length - 1) {
-        if (pingResult[i] < pingResult[i + 1]) {
-          print('++++');
-          print((pingResult[i + 1]) - pingResult[i]);
-          jitter.add((pingResult[i] + 1) - pingResult[i]);
-        } else {
-          jitter.add(pingResult[i] - (pingResult[i + 1]));
-          print('====');
-          print(pingResult[i] - (pingResult[i + 1]));
-        }
-      } else {
-        print('lol');
+      if (i > 0) {
+        if (i < pingResult.length - 1) {
+          if (pingResult[i] < pingResult[i + 1]) {
+            jitter.add((pingResult[i] + 1) - pingResult[i]);
+          } else {
+            jitter.add(pingResult[i] - (pingResult[i + 1]));
+          }
+        } else {}
       }
     }
 
-    // print(jitter);
     int sumJitter = jitter.fold(0, (p, c) => p + c);
-    // print('jumlah nya : $sumJitter');
-    // print('rata jitter nya : ${sumJitter ~/ jitter.length - 1}');
 
-    // setState(() {
     var resultJitter = sumJitter ~/ (jitter.length - 1);
     return resultJitter;
-    // });
   }
 
   Future<int> testResponse(String url) async {
@@ -222,14 +189,8 @@ class FlutterSpeedtest {
       var receiveDate = DateTime.now();
       var duration = receiveDate.difference(sendDate).inMilliseconds;
 
-      // setState(() {
-      //   responseTime = '${duration.toStringAsFixed(2)} ms';
-      // });
-
-      // print(response.headers);
       return duration;
     } catch (e) {
-      print(e);
       return 0;
     }
   }

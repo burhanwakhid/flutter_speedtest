@@ -1,14 +1,14 @@
 name: flutter_speedtest
-description: A new Flutter package project.
-version: 0.0.1
+description: Flutter Speedtest package
+version: 0.0.2
 homepage: https://github.com/burhanwakhid
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.1"
 
 dependencies:
-  dio: ^4.0.4
+  dio: ^4.0.6
   flutter:
     sdk: flutter
   tuple: ^2.0.0
