@@ -12,7 +12,7 @@ Check your Internet speed test.
 
 ```yaml
 dependencies:
-  flutter_speedtest: ^0.0.1
+  flutter_speedtest: ^0.0.2+2
 ```
 
 
@@ -23,34 +23,28 @@ dependencies:
 
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 
- final _speedtest = FlutterSpeedtest();
-
-_speedtest.downloadProgress(
-  url:
-      'http://speedtest-sby.natanetwork.co.id:8080/speedtest/download?size=25000000',
-  onProgress: (percent, transferRate) {
-    // TODO: Change UI
-  },
-  onError: (errorMessage) {},
-);
+  final _speedtest = FlutterSpeedtest(
+    baseUrl: 'http://speedtest.jaosing.com:8080', // your server url
+    pathDownload: '/download', 
+    pathUpload: '/upload',
+    pathResponseTime: '/ping',
+  );
 
 
-_speedtest.uploadProgress(
-  url:
-      'http://speedtest-sby.natanetwork.co.id:8080/speedtest/upload.php',
-  onProgress: (percent, transferRate) {
-    // TODO: Change UI
-  },
-  onError: (errorMessage) {},
-);
-
-_speedtest.getResponseTime(
-  url:
-      'http://speedtest-sby.natanetwork.co.id:8080/speedtest/ping',
-  onProgress: (responseTime, jitter) {
-    // TODO: Change UI
-  },
-);
+  _speedtest.getDataspeedtest(
+    downloadOnProgress: ((percent, transferRate) {
+      //TODO: in ui
+    }),
+    uploadOnProgress: ((percent, transferRate) {
+     //TODO: in ui
+    }),
+    progressResponse: ((responseTime, jitter) {
+      //TODO: in ui
+    }),
+    onError: ((errorMessage) {
+      //TODO: in ui
+    }),
+  );
 
 
 ```
