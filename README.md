@@ -44,6 +44,7 @@ import 'package:flutter_speedtest/flutter_speedtest.dart';
     onError: ((errorMessage) {
       //TODO: in ui
     }),
+    onDone: () => debugPrint('done'),
   );
 
 

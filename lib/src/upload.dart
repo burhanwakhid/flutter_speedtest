@@ -5,11 +5,13 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart' hide ProgressCallback;
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 import 'package:flutter_speedtest/src/settings/settings.dart';
+import 'package:uuid/uuid.dart';
 
 class Upload {
-  Upload(this._dio);
+  Upload();
 
-  final Dio _dio;
+  final _dio = Dio();
+  final _uuid = const Uuid();
 
   CancelToken cancelToken = CancelToken();
 
@@ -31,6 +33,7 @@ class Upload {
     // Function(double)? onProgress,
     required ProgressCallback onProgress,
     required ErrorCallback onError,
+    required OnDone onDone,
   }) async {
     try {
       final sendDate = DateTime.now();
@@ -74,6 +77,8 @@ class Upload {
             }),
       );
 
+      onDone();
+
       // print(response.headers);
     } on DioError catch (e) {
       onError(e.error.toString());
@@ -84,6 +89,7 @@ class Upload {
     required String url,
     required ProgressCallback onProgress,
     required ErrorCallback onError,
+    required OnDone onDone,
   }) async {
     // const ulCkSize = 20;
     // final garbage = Uint8List(ulCkSize * 1048576);
@@ -212,7 +218,7 @@ class Upload {
               // );
 
               await _dio.post(
-                url,
+                url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
                 data: {
                   'randomDataString': getRandomString(15000000),
                 },
@@ -228,6 +234,11 @@ class Upload {
                 },
                 //Received data with List<int>
                 options: Options(
+                    headers: {
+                      'Content-Encoding': 'identity',
+                      'Content-Type': 'application/octet-stream',
+                      'Connection': 'keep-alive',
+                    },
                     followRedirects: false,
                     validateStatus: (status) {
                       return status! < 500;
@@ -295,8 +306,9 @@ class Upload {
             if ((t + bonusT) / 1000.0 > SpeedtestSetting.timeUlMax || failed) {
               // test is over, stop streams and timer
               if (failed || ulStatus.isEmpty) ulStatus = "Fail";
-              cancelToken.cancel();
+              // cancelToken.cancel();
               s.cancel();
+              onDone();
             }
           }
         },

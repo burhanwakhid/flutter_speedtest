@@ -21,6 +21,7 @@ typedef ProgressResponseCallback = void Function(
 );
 
 typedef ErrorCallback = void Function(String errorMessage);
+typedef OnDone = void Function();
 
 final _dio = Dio();
 
@@ -38,8 +39,8 @@ class FlutterSpeedtest {
   final String pathUpload;
   final String pathResponseTime;
 
-  final _download = Download(_dio);
-  final _upload = Upload(_dio);
+  final _download = Download();
+  final _upload = Upload();
   final _responseTime = ResponseTime(_dio);
 
   /// method download is a method that provides assess to download speed
@@ -48,6 +49,7 @@ class FlutterSpeedtest {
     required ProgressCallback uploadOnProgress,
     required ProgressResponseCallback progressResponse,
     required ErrorCallback onError,
+    required OnDone onDone,
   }) async {
     try {
       // get response time
@@ -57,17 +59,24 @@ class FlutterSpeedtest {
       );
 
       // get download speed
-      await _download.dlTest(
+      _download.dlTest(
         url: baseUrl + pathDownload,
         onProgress: downloadOnProgress,
         onError: onError,
         isDone: (isDone) async {
           if (isDone) {
             // get upload speed
-            await _upload.uploadProgress(
+            // _upload.uploadProgress(
+            //   url: baseUrl + pathUpload,
+            //   onProgress: uploadOnProgress,
+            //   onError: onError,
+            //   onDone: onDone,
+            // );
+            _upload.ulTest(
               url: baseUrl + pathUpload,
               onProgress: uploadOnProgress,
               onError: onError,
+              onDone: onDone,
             );
           }
         },

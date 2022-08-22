@@ -30,7 +30,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _speedtest = FlutterSpeedtest(
-    baseUrl: 'http://speedtest.jaosing.com:8080',
+    baseUrl:
+        'https://jakarta.speedtest.telkom.net.id.prod.hosts.ooklaserver.net:8080',
     pathDownload: '/download',
     pathUpload: '/upload',
     pathResponseTime: '/ping',
@@ -80,40 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 onError: ((errorMessage) {
                   // print(errorMessage);
                 }),
+                onDone: () => debugPrint('done'),
               );
             },
             child: const Text('test download'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // _speedtest.uploadProgress(
-              //   url:
-              //       'http://speedtest-sby.natanetwork.co.id:8080/speedtest/upload.php',
-              //   onProgress: (percent, transferRate) {
-              //     setState(() {
-              //       _progressUpload = transferRate;
-              //     });
-              //   },
-              //   onError: (errorMessage) {},
-              // );
-            },
-            child: const Text('test upload'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {});
-              // _speedtest.getResponseTime(
-              //   url:
-              //       'http://speedtest-sby.natanetwork.co.id:8080/speedtest/ping',
-              //   onProgress: (responseTime, jitter) {
-              //     setState(() {
-              //       _ping = responseTime;
-              //       _jitter = jitter;
-              //     });
-              //   },
-              // )
-            },
-            child: const Text('test ping'),
           ),
         ],
       )),
