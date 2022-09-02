@@ -30,8 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _speedtest = FlutterSpeedtest(
-    baseUrl:
-        'https://jakarta.speedtest.telkom.net.id.prod.hosts.ooklaserver.net:8080',
+    baseUrl: 'https://speedtest.gsmnet.id.prod.hosts.ooklaserver.net:8080',
     pathDownload: '/download',
     pathUpload: '/upload',
     pathResponseTime: '/ping',

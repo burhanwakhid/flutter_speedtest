@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' hide ProgressCallback;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 import 'package:flutter_speedtest/src/settings/settings.dart';
 import 'package:uuid/uuid.dart';
@@ -216,11 +217,11 @@ class Upload {
               //     },
               //   ),
               // );
-
+              var postData = await compute(getRandomString, 25000000);
               await _dio.post(
                 url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
                 data: {
-                  'randomDataString': getRandomString(15000000),
+                  'randomDataString': postData,
                 },
                 onSendProgress: (int received, int total) {
                   if (total != -1) {
@@ -238,6 +239,7 @@ class Upload {
                       'Content-Encoding': 'identity',
                       'Content-Type': 'application/octet-stream',
                       'Connection': 'keep-alive',
+                      'Content-Length': 16384,
                     },
                     followRedirects: false,
                     validateStatus: (status) {
@@ -285,6 +287,7 @@ class Upload {
 
             // setState(() {
             //update status
+            var progress = (t + bonusT) / (14 * 1000).toDouble();
             ulStatus = ((speed *
                         8 *
                         SpeedtestSetting.overheadCompensationFactor) /
@@ -299,7 +302,7 @@ class Upload {
             //     ((speed * 8 * SpeedtestSetting.overheadCompensationFactor) /
             //         (SpeedtestSetting.useMebibits ? 1048576 : 1000000));
             onProgress(
-              (t + bonusT) / 1000.0,
+              progress,
               uploadRate,
             );
             // });

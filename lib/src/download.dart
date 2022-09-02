@@ -217,9 +217,9 @@ class Download {
             var downloadRate =
                 ((speed * 8 * SpeedtestSetting.overheadCompensationFactor) /
                     (SpeedtestSetting.useMebibits ? 1048576 : 1000000));
-
+            var progress = (t + bonusT) / (15 * 1000).toDouble();
             onProgress(
-              (t + bonusT) / 1000.0,
+              progress,
               downloadRate,
             );
 

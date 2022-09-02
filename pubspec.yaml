@@ -1,6 +1,6 @@
 name: flutter_speedtest
 description: Flutter Speedtest package compatible with web, android, ios, desktop
-version: 0.1.0+4
+version: 0.1.2+5
 homepage: https://github.com/burhanwakhid
 
 environment:
