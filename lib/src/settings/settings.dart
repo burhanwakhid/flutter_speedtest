@@ -12,8 +12,8 @@ class SpeedtestSetting {
   // time_ul_max: 15, // max duration of upload test in seconds
   // time_dl_max: 15, // max duration of download test in seconds
   // time_auto: true, // if set to true, tests will take less time on faster connections
-  static int timeUlGraceTime =
-      3; //time to wait in seconds before actually measuring ul speed (wait for buffers to fill)
+  static double timeUlGraceTime =
+      1.5; //time to wait in seconds before actually measuring ul speed (wait for buffers to fill)
   static double timeDlGraceTime =
       1.5; // time_dlGraceTime: 1.5, //time to wait in seconds before actually measuring dl speed (wait for TCP window to increase)
   static int countPing =

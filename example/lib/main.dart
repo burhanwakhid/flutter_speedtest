@@ -30,7 +30,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _speedtest = FlutterSpeedtest(
-    baseUrl: 'https://speedtest.gsmnet.id.prod.hosts.ooklaserver.net:8080',
+    baseUrl:
+        'https://speedtest-ookla.sman4tegal.sch.id.prod.hosts.ooklaserver.net:8080',
     pathDownload: '/download',
     pathUpload: '/upload',
     pathResponseTime: '/ping',
@@ -51,8 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
+        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text('Download: $_progressDownload'),
           Text('upload: $_progressUpload'),
@@ -84,6 +85,60 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             child: const Text('test download'),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: ListTile(
+              title: Text('data'),
+            ),
           ),
         ],
       )),

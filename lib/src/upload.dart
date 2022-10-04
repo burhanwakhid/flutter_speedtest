@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -6,7 +7,10 @@ import 'package:dio/dio.dart' hide ProgressCallback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 import 'package:flutter_speedtest/src/settings/settings.dart';
+import 'package:isolated_worker/js_isolated_worker.dart';
 import 'package:uuid/uuid.dart';
+
+typedef OnUploadProgressCallback = void Function(int sentBytes, int totalBytes);
 
 class Upload {
   Upload();
@@ -15,6 +19,17 @@ class Upload {
   final _uuid = const Uuid();
 
   CancelToken cancelToken = CancelToken();
+
+  static bool trustSelfSigned = true;
+
+  static HttpClient getHttpClient() {
+    HttpClient httpClient = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 10)
+      ..badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => trustSelfSigned);
+
+    return httpClient;
+  }
 
   late Timer s;
   var dlCalled = false;
@@ -170,7 +185,7 @@ class Upload {
                 //Received data with List<int>
                 options: Options(
                   headers: {
-                    'Content-Type': 'application/octet-stream',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                     'Content-Length': 16384,
                   },
                   responseType: ResponseType.bytes,
@@ -181,48 +196,29 @@ class Upload {
                 ),
               );
             } else {
-              // await _dio.post(
-              //   url +
-              //       urlSep(url) +
-              //       'cors=true&' +
-              //       "r=" +
-              //       random(1, 1000).toString(),
-              //   data: {
-              //     'randomDataString': getRandomString(25000000),
-              //   },
-              //   // cancelToken: cancelToken,
-              //   onSendProgress: (int received, int total) {
-              //     var loadDiff = received <= 0 ? 0 : received - prevLoaded;
-              //     if (loadDiff.isNaN || !loadDiff.isFinite || loadDiff < 0) {
-              //       return;
-              //     } // just in case
-              //     totLoaded += loadDiff;
-              //     prevLoaded = received;
-              //     print('hahah');
-              //     print(total);
-              //     print(totLoaded);
-              //   },
-              //   // cancelToken: cancelToken1,
-              //   //Received data with List<int>
-              //   options: Options(
-              //     headers: {
-              //       'Content-Type': 'application/octet-stream',
-              //       'Content-Length': garbage,
-              //       'connection': 'keep-alive',
-              //     },
-              //     responseType: ResponseType.bytes,
-              //     followRedirects: false,
-              //     validateStatus: (status) {
-              //       return status! < 500;
-              //     },
-              //   ),
-              // );
-              var postData = await compute(getRandomString, 25000000);
+              String postData = '';
+              const List<String> _jsScripts = <String>['getrandomstring.js'];
+
+              /// our `get` function on the `fetch_function.js` file
+              const String _jsGetFunctionName = 'randomstring';
+              if (kIsWeb) {
+                await JsIsolatedWorker().importScripts(_jsScripts);
+
+                postData = await JsIsolatedWorker().run(
+                  functionName: _jsGetFunctionName,
+                  arguments: 1000,
+                ) as String;
+                print('hahahahah');
+              } else {
+                postData = await compute(getRandomString, 35000000);
+              }
+              // var postData = await compute(getRandomString, 15000000);
+              FormData formData = FormData.fromMap({
+                'image': postData,
+              });
               await _dio.post(
                 url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
-                data: {
-                  'randomDataString': postData,
-                },
+                data: formData,
                 onSendProgress: (int received, int total) {
                   if (total != -1) {
                     var loadDiff = received <= 0 ? 0 : received - prevLoaded;
@@ -231,15 +227,17 @@ class Upload {
                     } // just in case
                     totLoaded += loadDiff;
                     prevLoaded = received;
+                    print(totLoaded);
                   }
                 },
                 //Received data with List<int>
                 options: Options(
                     headers: {
                       'Content-Encoding': 'identity',
-                      'Content-Type': 'application/octet-stream',
-                      'Connection': 'keep-alive',
-                      'Content-Length': 16384,
+                      // 'Content-Type': 'application/octet-stream',
+                      // 'Connection': 'keep-alive',
+                      // Headers.contentLengthHeader:
+                      //     utf8.encode(jsonEncode(body)).length,
                     },
                     followRedirects: false,
                     validateStatus: (status) {
@@ -258,7 +256,7 @@ class Upload {
 
       // every 200ms, update ulStatus
       s = Timer.periodic(
-        const Duration(milliseconds: 200),
+        const Duration(milliseconds: 300),
         (timer) {
           var t = DateTime.now().millisecondsSinceEpoch - startT;
           if (graceTimeDone) {
@@ -266,8 +264,13 @@ class Upload {
           }
           if (t < 200) return;
           if (!graceTimeDone) {
-            if (t > 1000 * SpeedtestSetting.timeUlGraceTime) {
+            // print('object');
+            // print(t);
+            // print(1000 * SpeedtestSetting.timeUlGraceTime);
+            if (t >= 1000 * SpeedtestSetting.timeUlGraceTime) {
+              print('agaga');
               if (totLoaded > 0) {
+                print('adf');
                 // if the connection is so slow that we didn't get a single chunk yet, do not reset
                 startT = DateTime.now().millisecondsSinceEpoch;
                 bonusT = 0;
@@ -276,18 +279,22 @@ class Upload {
               graceTimeDone = true;
             }
           } else {
-            var speed = totLoaded / (t / 1000.0);
+            var speed = totLoaded / ((t < 100 ? 100 : t) / 1000.0);
             if (SpeedtestSetting.timeAuto) {
               //decide how much to shorten the test. Every 200ms, the test is shortened by the bonusT calculated here
               double bonus = (5.0 * speed) / 100000;
               bonusT += bonus > 400 ? 400 : bonus;
             }
 
-            // print('auto');
+            print('auto');
+
+            print(totLoaded);
+            print(speed);
 
             // setState(() {
             //update status
             var progress = (t + bonusT) / (14 * 1000).toDouble();
+
             ulStatus = ((speed *
                         8 *
                         SpeedtestSetting.overheadCompensationFactor) /

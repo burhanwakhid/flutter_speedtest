@@ -1,3 +1,5 @@
+## 0.1.3+6
+- update upload method
 ## 0.1.2+5
 - resolve ui freeze when upload start
 ## 0.1.0+4
