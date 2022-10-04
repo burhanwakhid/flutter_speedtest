@@ -206,7 +206,7 @@ class Upload {
 
                 postData = await JsIsolatedWorker().run(
                   functionName: _jsGetFunctionName,
-                  arguments: 1000,
+                  arguments: 35000000,
                 ) as String;
                 print('hahahahah');
               } else {
