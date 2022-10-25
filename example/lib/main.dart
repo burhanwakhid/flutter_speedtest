@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 
 void main() {
+  // HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 
@@ -63,11 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               _speedtest.getDataspeedtest(
                 downloadOnProgress: ((percent, transferRate) {
+                  print(transferRate);
                   setState(() {
                     _progressDownload = transferRate;
                   });
                 }),
                 uploadOnProgress: ((percent, transferRate) {
+                  print(transferRate);
                   setState(() {
                     _progressUpload = transferRate;
                   });
@@ -143,5 +148,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       )),
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

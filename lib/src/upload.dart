@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart' hide ProgressCallback;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 import 'package:flutter_speedtest/src/settings/settings.dart';
-import 'package:isolated_worker/js_isolated_worker.dart';
 import 'package:uuid/uuid.dart';
 
 typedef OnUploadProgressCallback = void Function(int sentBytes, int totalBytes);
@@ -52,13 +50,16 @@ class Upload {
     required OnDone onDone,
   }) async {
     try {
+      print('s');
       final sendDate = DateTime.now();
+
+      final postData = await compute(getRandomString, 500000);
       // double speeds = 0;
 
       await _dio.post(
         url,
         data: {
-          'randomDataString': getRandomString(15000000),
+          'randomDataString': postData,
         },
         onSendProgress: (int received, int total) {
           if (total != -1) {
@@ -79,9 +80,17 @@ class Upload {
             speed = (speed * 8 * 1.06) / 1000000.0;
             // print(speed);
 
+            if ((t + bonusT) / 100000.0 > 15) {
+              // test is over, stop streams and timer
+              print('wkwwkwkkw');
+              // cancelToken.cancel();
+              s.cancel();
+              onDone();
+            }
+
             onProgress(
               progress,
-              speed,
+              speed * 10,
             );
           }
         },
@@ -201,21 +210,28 @@ class Upload {
 
               /// our `get` function on the `fetch_function.js` file
               const String _jsGetFunctionName = 'randomstring';
-              if (kIsWeb) {
-                await JsIsolatedWorker().importScripts(_jsScripts);
+              // if (kIsWeb) {
+              //   await JsIsolatedWorker().importScripts(_jsScripts);
 
-                postData = await JsIsolatedWorker().run(
-                  functionName: _jsGetFunctionName,
-                  arguments: 35000000,
-                ) as String;
-                print('hahahahah');
-              } else {
-                postData = await compute(getRandomString, 35000000);
-              }
+              //   postData = await JsIsolatedWorker().run(
+              //     functionName: _jsGetFunctionName,
+              //     arguments: 20000000,
+              //   ) as String;
+              // } else {
+              //   print('object');
+              // postData = await compute(getRandomString, 20000000);
+              postData = getRandomString(20000000);
+              // }
+              print(
+                url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
+              );
               // var postData = await compute(getRandomString, 15000000);
               FormData formData = FormData.fromMap({
                 'image': postData,
               });
+              print(
+                url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
+              );
               await _dio.post(
                 url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
                 data: formData,
@@ -227,22 +243,22 @@ class Upload {
                     } // just in case
                     totLoaded += loadDiff;
                     prevLoaded = received;
-                    print(totLoaded);
                   }
                 },
                 //Received data with List<int>
                 options: Options(
-                    headers: {
-                      'Content-Encoding': 'identity',
-                      // 'Content-Type': 'application/octet-stream',
-                      // 'Connection': 'keep-alive',
-                      // Headers.contentLengthHeader:
-                      //     utf8.encode(jsonEncode(body)).length,
-                    },
-                    followRedirects: false,
-                    validateStatus: (status) {
-                      return status! < 500;
-                    }),
+                  headers: {
+                    'Content-Encoding': 'identity',
+                    // 'Content-Type': 'application/octet-stream',
+                    // 'Connection': 'keep-alive',
+                    // Headers.contentLengthHeader:
+                    //     utf8.encode(jsonEncode(body)).length,
+                  },
+                  followRedirects: false,
+                  validateStatus: (status) {
+                    return status! < 500;
+                  },
+                ),
               );
             }
           },
@@ -285,11 +301,6 @@ class Upload {
               double bonus = (5.0 * speed) / 100000;
               bonusT += bonus > 400 ? 400 : bonus;
             }
-
-            print('auto');
-
-            print(totLoaded);
-            print(speed);
 
             // setState(() {
             //update status
