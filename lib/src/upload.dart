@@ -53,7 +53,7 @@ class Upload {
       print('s');
       final sendDate = DateTime.now();
 
-      final postData = await compute(getRandomString, 500000);
+      final postData = await compute(getRandomString, 1500000);
       // double speeds = 0;
 
       await _dio.post(
