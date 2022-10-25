@@ -73,10 +73,10 @@ class Upload {
 
             double speed = totUploaded / ((t < 100 ? 100 : t) / 1000.0);
 
-            double b = (2.5 * speed) / 100000.0;
-            bonusT += b > 200 ? 200 : b;
+            double bonus = (5.0 * speed) / 100000;
+            bonusT += bonus > 400 ? 400 : bonus;
 
-            double progress = (t + bonusT) / 15 * 1000;
+            double progress = (t + bonusT) / (14 * 1000).toDouble();
             speed = (speed * 8 * 1.06) / 1000000.0;
             // print(speed);
 
