@@ -78,11 +78,10 @@ class Upload {
 
             double progress = (t + bonusT) / (14 * 1000).toDouble();
             speed = (speed * 8 * 1.06) / 1000000.0;
-            // print(speed);
 
             if ((t + bonusT) / 100000.0 > 15) {
               // test is over, stop streams and timer
-              print('wkwwkwkkw');
+              debugPrint('upload test over');
               // cancelToken.cancel();
               s.cancel();
               onDone();
@@ -90,7 +89,7 @@ class Upload {
 
             onProgress(
               progress,
-              speed * 10,
+              speed,
             );
           }
         },
