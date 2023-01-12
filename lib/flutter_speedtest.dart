@@ -1,9 +1,7 @@
 library flutter_speedtest;
 
-import 'dart:io';
 import 'dart:math';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_speedtest/src/download.dart';
 import 'package:flutter_speedtest/src/response_time.dart';
@@ -34,14 +32,7 @@ class FlutterSpeedtest {
     required this.pathDownload,
     required this.pathUpload,
     required this.pathResponseTime,
-  }) {
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      return client;
-    };
-  }
+  });
 
   final String baseUrl;
   final String pathDownload;

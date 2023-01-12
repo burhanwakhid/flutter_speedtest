@@ -1,3 +1,7 @@
+## 0.1.5-beta+8
+- bux fixing on web
+## 0.1.4-beta+7
+- bux fixing
 ## 0.1.3+6
 - update upload method
 ## 0.1.2+5
