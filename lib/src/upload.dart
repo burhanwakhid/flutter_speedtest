@@ -131,7 +131,7 @@ class Upload {
     }
 
     var req = <Uint8List>[];
-    var reqsmall = <Uint8List>[];
+    var reqsmall = <int>[];
     for (var i = 0; i < SpeedtestSetting.xhrulblobmegabytes; i++) {
       req.add(r);
     }
@@ -143,7 +143,7 @@ class Upload {
       r[i] = _random.nextInt(100) * maxInt.toInt();
     }
 
-    reqsmall.add(r);
+    reqsmall.add(r.length);
 
     // ignore: prefer_function_declarations_over_variables
     var testFunction = () {
@@ -204,11 +204,6 @@ class Upload {
                 ),
               );
             } else {
-              String postData = '';
-              const List<String> _jsScripts = <String>['getrandomstring.js'];
-
-              /// our `get` function on the `fetch_function.js` file
-              const String _jsGetFunctionName = 'randomstring';
               // if (kIsWeb) {
               //   await JsIsolatedWorker().importScripts(_jsScripts);
 
@@ -219,39 +214,40 @@ class Upload {
               // } else {
               //   print('object');
               // postData = await compute(getRandomString, 20000000);
-              postData = getRandomString(20000000);
+
               // }
-              print(
-                url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
-              );
-              // var postData = await compute(getRandomString, 15000000);
-              FormData formData = FormData.fromMap({
-                'image': postData,
-              });
-              print(
-                url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
-              );
+
+              final list = await compute(getRandomList, 250000);
+              // final list = getRandomList(250000);
+
               await _dio.post(
                 url + urlSep(url) + 'nocache=${_uuid.v4()}&guid=${_uuid.v4()}',
-                data: formData,
+                data: list,
                 onSendProgress: (int received, int total) {
                   if (total != -1) {
                     var loadDiff = received <= 0 ? 0 : received - prevLoaded;
                     if (loadDiff.isNaN || !loadDiff.isFinite || loadDiff < 0) {
                       return;
                     } // just in case
+
                     totLoaded += loadDiff;
+                    print('--------');
+                    print(loadDiff);
+                    print(totLoaded);
+                    print('--------');
                     prevLoaded = received;
+                  } else {
+                    print('object');
                   }
                 },
                 //Received data with List<int>
                 options: Options(
                   headers: {
                     'Content-Encoding': 'identity',
-                    // 'Content-Type': 'application/octet-stream',
-                    // 'Connection': 'keep-alive',
-                    // Headers.contentLengthHeader:
-                    //     utf8.encode(jsonEncode(body)).length,
+                    'Content-Type': 'application/octet-stream',
+                    'Connection': 'keep-alive',
+                    // HttpHeaders.contentLengthHeader: 20971520,
+                    // HttpHeaders.contentLengthHeader: 25000000,
                   },
                   followRedirects: false,
                   validateStatus: (status) {
@@ -289,7 +285,7 @@ class Upload {
                 // if the connection is so slow that we didn't get a single chunk yet, do not reset
                 startT = DateTime.now().millisecondsSinceEpoch;
                 bonusT = 0;
-                totLoaded = 0.0;
+                // totLoaded = 0.0;
               }
               graceTimeDone = true;
             }
@@ -300,7 +296,10 @@ class Upload {
               double bonus = (5.0 * speed) / 100000;
               bonusT += bonus > 400 ? 400 : bonus;
             }
-
+            print('+++++++++');
+            print(speed);
+            print(totLoaded);
+            print('+++++++++');
             // setState(() {
             //update status
             var progress = (t + bonusT) / (14 * 1000).toDouble();
@@ -337,4 +336,8 @@ class Upload {
 
     testFunction();
   }
+}
+
+List<int> getRandomList(int val) {
+  return List.generate(val, (index) => index);
 }

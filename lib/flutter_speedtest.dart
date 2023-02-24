@@ -66,18 +66,18 @@ class FlutterSpeedtest {
         isDone: (isDone) async {
           if (isDone) {
             // get upload speed
-            _upload.uploadProgress(
-              url: baseUrl + pathUpload,
-              onProgress: uploadOnProgress,
-              onError: onError,
-              onDone: onDone,
-            );
-            // _upload.ulTest(
+            // _upload.uploadProgress(
             //   url: baseUrl + pathUpload,
             //   onProgress: uploadOnProgress,
             //   onError: onError,
             //   onDone: onDone,
             // );
+            _upload.ulTest(
+              url: baseUrl + pathUpload,
+              onProgress: uploadOnProgress,
+              onError: onError,
+              onDone: onDone,
+            );
           }
         },
       );
