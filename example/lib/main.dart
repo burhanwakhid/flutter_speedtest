@@ -29,8 +29,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // https://speedtest.globalxtreme.net:8080/upload?nocache=a58d34b4-f86b-4088-9396-eeac6fd27baf&guid=f3e39d01-247d-4a40-afaf-ef5c276b0f75
+
   final _speedtest = FlutterSpeedtest(
-    baseUrl: 'https://speedtest.gsmnet.id.prod.hosts.ooklaserver.net:8080',
+    // baseUrl: 'https://speedtest.gsmnet.id.prod.hosts.ooklaserver.net:8080',
+    baseUrl: 'https://speedtest.globalxtreme.net:8080',
     pathDownload: '/download',
     pathUpload: '/upload',
     pathResponseTime: '/ping',
