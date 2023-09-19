@@ -31,61 +31,6 @@ class Download {
   double ulProgress = 0; //progress of upload test 0-1
   var pingProgress = 0; //progress of ping+jitter test 0-1
 
-  Future<void> downloadProgress(
-      {required String url,
-      required ProgressCallback onProgress,
-      required ErrorCallback onError,
-      required IsDoneCallback isDone,
-      required}) async {
-    try {
-      final sendDate = DateTime.now().millisecondsSinceEpoch;
-
-      await _dio
-          .get(
-            url,
-            onReceiveProgress: (int received, int total) {
-              if (total != -1) {
-                // if (onProgress != null) onProgress(5);
-                int t = DateTime.now().millisecondsSinceEpoch - sendDate;
-
-                int totDownloaded = 0;
-
-                totDownloaded += received;
-
-                // double bonusT = 0;
-
-                double speed = totDownloaded / ((t < 100 ? 100 : t) / 1000.0);
-
-                // double b = (2.5 * speed) / 100000.0;
-                // bonusT += b > 200 ? 200 : b;
-
-                speed = (speed * 8 * 1.06) / 1048576.0;
-
-                onProgress(
-                  (received / total * 100),
-                  speed,
-                );
-              }
-            },
-            //Received data with List<int>
-            options: Options(
-              responseType: ResponseType.bytes,
-              followRedirects: false,
-              validateStatus: (status) {
-                return status! < 500;
-              },
-            ),
-          )
-          .catchError((onError) {})
-          .whenComplete(() {});
-      // debugPrint(response.statusMessage);
-    } on DioError catch (e) {
-      onError(e.error.toString());
-    } on Exception catch (e) {
-      onError(e.toString());
-    }
-  }
-
   Future<void> dlTest({
     required String url,
     required ProgressCallback onProgress,
